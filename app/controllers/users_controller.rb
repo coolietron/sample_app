@@ -4,20 +4,31 @@ class UsersController < ApplicationController
   before_filter :admin_user,     only: :destroy
   def show
     @user = User.find(params[:id])
+    @microposts = @user.microposts.paginate(page: params[:page])
   end
   
   def new
-    @user = User.new
+    if signed_in?
+      redirect_to root_path
+      flash[:failure] = "Access to 'new' action denied."
+    else
+      @user = User.new
+    end
   end
   
   def create
-    @user = User.new(params[:user])
-    if @user.save
-      sign_in @user
-      flash[:success] = "Welcome to the Sample App!"
-      redirect_to @user
+    
+    if signed_in?
+      redirect_to root_path
     else
-      render 'new'
+      @user = User.new(params[:user])
+      if @user.save
+        sign_in @user
+        flash[:success] = "Welcome to the Sample App!"
+        redirect_to @user
+      else
+        render 'new'
+      end
     end
   end
   
@@ -48,12 +59,6 @@ class UsersController < ApplicationController
   
 private 
     
-    def signed_in_user
-      unless signed_in?
-        store_location
-        redirect_to signin_path, notice: "Please sign in."
-      end
-    end
   
     def correct_user
       @user = User.find(params[:id])

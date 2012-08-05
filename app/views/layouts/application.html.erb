@@ -10,6 +10,9 @@
 	<body>
 		<%= render 'layouts/header'%>
 		<div class="container">
+			<%= request.domain %>
+			<%= request.local? %>
+			<%= request.content_length %>
 			<% flash.each do |key, value| %>
 				<%= content_tag(:div, value, class: "alert alert-#{key}") %>
 			<% end %>
